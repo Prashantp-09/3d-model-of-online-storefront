@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Model Viewer - iPhone 15 Pro Max</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+    .controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 2;
+    }
+    .product-info {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 16px;
+      border-radius: 10px;
+      max-width: 300px;
+      font-size: 14px;
+      color: #000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      z-index: 2;
+    }
+    .product-info h2 {
+      margin: 0 0 10px 0;
+    }
+    .product-info ul {
+      padding-left: 20px;
+    }
+    button {
+      padding: 10px 16px;
+      font-size: 14px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      opacity: 0.8;
+    }
+    button:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Product Info Panel -->
+<div class="product-info">
+  <h2>iPhone 15 Pro Max</h2>
+  <p><strong>Price:</strong> ₹1,59,900</p>
+  <ul>
+    <li><strong>Display:</strong> 6.7″ Super Retina XDR</li>
+    <li><strong>Chip:</strong> A17 Pro</li>
+    <li><strong>Camera:</strong> 48MP Main, Telephoto, Ultra Wide</li>
+    <li><strong>Storage:</strong> 256GB</li>
+    <li><strong>Material:</strong> Titanium body</li>
+  </ul>
+</div>
+
+<!-- Zoom Controls -->
+<div class="controls">
+  <button id="zoomIn">🔍 Zoom In</button>
+  <button id="zoomOut">🔎 Zoom Out</button>
+</div>
+
+<!-- Load Three.js and Controls -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+  let camera, controls;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xf0f0f0);
+
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 1.5, 5);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.zoomSpeed = 1.2;
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+  scene.add(ambientLight);
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(3, 4, 5);
+  scene.add(dirLight);
+
+  const loader = new THREE.GLTFLoader();
+  loader.load('iphone15promax.glb', function (gltf) {
+    const model = gltf.scene;
+    model.scale.set(1.5, 1.5, 1.5);
+    model.position.set(0, -1, 0);
+    scene.add(model);
+  }, undefined, function (error) {
+    console.error('Failed to load model:', error);
+  });
+
+  // Zoom Buttons
+  document.getElementById('zoomIn').addEventListener('click', () => {
+    camera.position.z -= 0.5;
+    controls.update();
+  });
+
+  document.getElementById('zoomOut').addEventListener('click', () => {
+    camera.position.z += 0.5;
+    controls.update();
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+
+</body>
+</html>
+
+
